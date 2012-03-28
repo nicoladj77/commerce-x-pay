@@ -76,6 +76,8 @@ function commerce_xpay_settings_form($settings = NULL) {
 					# '234' => 'BRL Real',
 			);
 	
+	//The hardcoded values for commerce_xpay_tid and commerce_xpay_mac are the standard values for the 
+	//test server, keep them while testing, documentation for x-pay is horrible
 	$settings = (array) $settings + array(
 			'commerce_xpay_tid' => 'T04_000000000005',
 			'commerce_xpay_mac' => 'AA88CCEWDKLSDJD3921ZZ',
@@ -110,8 +112,8 @@ function commerce_xpay_settings_form($settings = NULL) {
 			'#title' => t('Mode'),
 			'#description' => t('Select NORMAL form normal usage or TEST for testing pourposes'),
 			'#options' => array(
-					'normal' => t('NORMAL'),
 					'test' => t('TEST'),
+					'normal' => t('NORMAL'),
 			),
 			'#default_value' => $settings['commerce_xpay_mode'],
 	);
@@ -164,24 +166,39 @@ function commerce_xpay_settings_form($settings = NULL) {
 	
 	return $form;
 }
+
+/**
+ * Builds a Website Payments Standard form from an order object.
+ *
+ * @param $order
+ *   The fully loaded order being paid for.
+ * @param $settings
+ *   An array of settings used to build out the form, including:
+ *   - commerce_xpay_mode: which server to use, either test or normal
+ *   - commerce_xpay_tid: the Xpay teminal id to use
+ *   - commerce_xpay_mac: the MAC that you got from X-Pay after activation
+ *   - commerce_xpay_mode: the URL PayPal should send the user to on cancellation
+ *   - return: the URL X-Pay should send the user to on successful payment
+ *   - cancel_return: the URL X-Pay should send the user to after a not successful payment
+ *   - commerce_xpay_currency: the X-Pay currency code to use for this payment 
+ *   - commerce_xpay_language: the X-Pay language code to use on the payment form
+ *   - commerce_xpay_action_code:  the action code for the authorization request
+ *
+ * @return
+ *   A renderable form array.
+ */
 function commerce_xpay_order_form($form, &$form_state, $order, $settings) {
 	
 	
 	$wrapper = entity_metadata_wrapper('commerce_order', $order);
 
 	$mail = $wrapper->mail->value();
-	
+
 	$currency_code = $wrapper->commerce_order_total->currency_code->value();
 	$amount = $wrapper->commerce_order_total->amount->value() / 100;
-	// prepare transaction string
-	#$amount = number_format($order->order_total,2,'',''); //Espresso in centesimi di euro. 10 = 0,10 Euro
-	#$rifOperazione = $order->order_id; //Valore univoco attribuito dal commerciante alla transazione
-	#$description = t('Pagamento ordine !order_id.',array('!order_id'=>$order->order_id));
-	#$time = substr("00".date("G"),-2).substr("00".date("i"),-2).substr("00".date("s"),-2); //ora hhmmss
-	#$date = substr("00".date("y"),-2).substr("00".date("m"),-2).substr("00".date("d"),-2); //data aammgg
 	$site_url = url("", array('absolute' => true));
 	$transaction_id = str_pad($order->order_id,6,"0",STR_PAD_LEFT)."O".str_pad(time(), 13, "0", STR_PAD_LEFT);
-	//$now_string = strftime("%d%m%Y_%H%M%S",$now);
+
 	
 	$data = array(
 			'TERMINAL_ID' => $settings['commerce_xpay_tid'], 
@@ -248,7 +265,11 @@ function commerce_xpay_submit_form($payment_method, $pane_values, $checkout_pane
  *   use function for building a WPS form.
  */
 function commerce_xpay_redirect_form($form, &$form_state, $order, $payment_method) {
-    
+	// Return an error if the enabling action's settings haven't been configured.
+	if (empty($payment_method['settings']['commerce_xpay_tid'])) {
+		drupal_set_message(t('PayPal WPS is not configured for use. No PayPal e-mail address has been specified.'), 'error');
+		return array();
+	}
 	$settings = array(
 	// Return to the previous page when payment is canceled
 			'cancel_return' => url('checkout/' . $order->order_id . '/payment/back/' . $order->data['payment_redirect_key'], array('absolute' => TRUE)),
@@ -273,33 +294,11 @@ function _xpay_post_url($setting) {
  *
  * @param $payment_method
  *   The payment method instance array that originally made the payment.
- * @param $debug_ipn
- *   Optionally specify an IPN array for debug purposes; if left empty, the IPN
- *     be pulled from the $_POST. If an IPN is passed in, validation of the IPN
- *     at PayPal will be bypassed.
  *
  * @return
  *   TRUE or FALSE indicating whether the IPN was successfully processed or not.
  */
-function commerce_xpay_process_ipn($payment_method = NULL, $debug_ipn = array()) {
-	$filename = __DIR__.DIRECTORY_SEPARATOR."logging.txt";
-	
-	file_put_contents($filename, "chiamato\n", FILE_APPEND);
-	if(isset($payment_method)){
-		foreach ($payment_method as $key => $value){
-			file_put_contents($filename, "chiave[$key] - valore[$value] $payment_method \n", FILE_APPEND);
-		}
-	}
-	if(isset($debug_ipn)){
-		file_put_contents($filename, implode(" debug \n",  $debug_ipn), FILE_APPEND);
-	}
-	if(isset($_POST)){
-		foreach ($_POST as $key => $value){
-			file_put_contents($filename, "chiave[$key] - valore[$value] post \n", FILE_APPEND);
-		}
-	}
-	$payed=FALSE;
-	$msg="";
+function commerce_xpay_process_ipn($payment_method = NULL) {
 	
 	$response = $_POST["RESPONSE"];
 	$transaction_id = $_POST["TRANSACTION_ID"];
@@ -363,7 +362,12 @@ function commerce_xpay_ipn_url($method_id = NULL) {
 
 	return url(implode('/', $parts), array('absolute' => TRUE));
 }
-
+/**
+ * Returns the Currency code from the currency number.
+ *
+ * @param $numericCode
+ *   The numerc code to look up
+ */
 function _xpay_get_currency_code_from_value($numericCode){
 	$xpay_currencies = array(
 	#'1' => 'USD (US Dollar $)',
