@@ -169,7 +169,7 @@ function commerce_xpay_settings_form($settings = NULL) {
 
 /**
  * Builds a Website Payments Standard form from an order object.
- * 
+ *
  * @param array $form
  *   Drupal form
  * @param array $form_state
@@ -309,19 +309,19 @@ function commerce_xpay_process_ipn($payment_method = NULL) {
 
   $response = $_POST["RESPONSE"];
   $transaction_id = $_POST["TRANSACTION_ID"];
-  $transaction_id_array =  split('O',$transaction_id);
-  $order_id =  (int)$transaction_id_array[0];
+  $transaction_id_array = split('O', $transaction_id);
+  $order_id = (int) $transaction_id_array[0];
   $auth_code = $_POST["AUTH_CODE"];
-  $amount = $_POST["AMOUNT"]/100;
+  $amount = $_POST["AMOUNT"] / 100;
   $currency = commerce_xpay_get_currency_code_from_value($_POST['CURRENCY']);
 
-  // Load the order from commerce
+  // Load the order from commerce.
   $order = commerce_order_load($order_id);
 
-  // ERROR - ORDER NOT IN CHECKOUT
+  // ERROR - ORDER NOT IN CHECKOUT.
   if ($order === FALSE) {
-    watchdog('xpay', 'RETURN FROM PAYMENT GATEWAY - ORDER NOT IN CHECKOUT STATE OR NOT FOUND, received response !response for payment from gateway but order #!order_id is not in "in_checkout" state', array('!order_id' => $transaction_id,'!response' => $order_id), WATCHDOG_ERROR);
-    drupal_set_message(t('WARNING - ORDER #!order_id NOT FOUND, Please Retry.', array('!order_id'=>$order_id)), 'warning');
+    watchdog('xpay', 'RETURN FROM PAYMENT GATEWAY - ORDER NOT IN CHECKOUT STATE OR NOT FOUND, received response !response for payment from gateway but order #!order_id is not in "in_checkout" state', array('!order_id' => $transaction_id, '!response' => $order_id), WATCHDOG_ERROR);
+    drupal_set_message(t('WARNING - ORDER #!order_id NOT FOUND, Please Retry.', array('!order_id' => $order_id)), 'warning');
     return FALSE;
   }
 
@@ -335,11 +335,13 @@ function commerce_xpay_process_ipn($payment_method = NULL) {
 
   // Set the transaction's statuses based on the IPN's payment_status.
   $transaction->remote_status = $response;
-  // ERROR - PAYMENT NOT OK
+  // ERROR - PAYMENT NOT OK.
   if ($response !== "TRANSACTION_OK") {
     $transaction->status = COMMERCE_PAYMENT_STATUS_FAILURE;
     $transaction->message = t('ERROR - PAYMENT NOT OK, response: !response', array('!response' => $response));
-  } else { // NOTICE - PAYMENT OK
+  }
+  else {
+    // NOTICE - PAYMENT OK.
     $transaction->status = COMMERCE_PAYMENT_STATUS_SUCCESS;
     $transaction->message = t('The payment has completed.');
   }
@@ -354,7 +356,7 @@ function commerce_xpay_process_ipn($payment_method = NULL) {
 /**
  * Returns the IPN URL.
  *
- * @param $method_id
+ * @param String $method_id
  *   Optionally specify a payment method ID to include in the URL.
  */
 function commerce_xpay_ipn_url($method_id = NULL) {
@@ -372,13 +374,13 @@ function commerce_xpay_ipn_url($method_id = NULL) {
 /**
  * Returns the Currency code from the currency number.
  *
- * @param $numericCode
+ * @param String $numeric_code
  *   The numerc code to look up
  */
-function commerce_xpay_get_currency_code_from_value($numericCode){
+function commerce_xpay_get_currency_code_from_value($numeric_code){
   $xpay_currencies = array(
     '978' => 'EUR',
   );
 
-  return $xpay_currencies[$numericCode];
+  return $xpay_currencies[$numeric_code];
 }
