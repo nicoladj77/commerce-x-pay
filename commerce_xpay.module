@@ -169,22 +169,25 @@ function commerce_xpay_settings_form($settings = NULL) {
 
 /**
  * Builds a Website Payments Standard form from an order object.
- * @param $form
- * 
- * @param $form_state
- *
- * @param $settings 
+ * @param array $form
+ *    - drupal form
+ * @param array $form_state
+ *    - drupal form state
+ * @param array $order 
  *   The fully loaded order being paid for.
- * @param $settings
+ * @param array $settings
  *   An array of settings used to build out the form, including:
  *   - commerce_xpay_mode: which server to use, either test or normal
  *   - commerce_xpay_tid: the Xpay teminal id to use
  *   - commerce_xpay_mac: the MAC that you got from X-Pay after activation
- *   - commerce_xpay_mode: the URL PayPal should send the user to on cancellation
+ *   - commerce_xpay_mode: the URL PayPal should send the user to on 
+ *       cancellation
  *   - return: the URL X-Pay should send the user to on successful payment
- *   - cancel_return: the URL X-Pay should send the user to after a not successful payment
+ *   - cancel_return: the URL X-Pay should send the user to after a not 
+ *       successful payment
  *   - commerce_xpay_currency: the X-Pay currency code to use for this payment
- *   - commerce_xpay_language: the X-Pay language code to use on the payment form
+ *   - commerce_xpay_language: the X-Pay language code to use on the payment 
+ *       form
  *   - commerce_xpay_action_code:  the action code for the authorization request
  *
  * @return array
@@ -198,15 +201,14 @@ function commerce_xpay_order_form($form, &$form_state, $order, $settings) {
 
   $currency_code = $wrapper->commerce_order_total->currency_code->value();
   $amount = $wrapper->commerce_order_total->amount->value() / 100;
-  $site_url = url("", array('absolute' => true));
-  $transaction_id = str_pad($order->order_id,6,"0",STR_PAD_LEFT)."O".str_pad(time(), 13, "0", STR_PAD_LEFT);
-
+  $site_url = url("", array('absolute' => TRUE));
+  $transaction_id = str_pad($order->order_id, 6, "0", STR_PAD_LEFT) . "O" . str_pad(time(), 13, "0", STR_PAD_LEFT);
 
   $data = array(
     'TERMINAL_ID' => $settings['commerce_xpay_tid'],
     'TRANSACTION_ID' => $transaction_id,
     'ACTION_CODE' => $settings['commerce_xpay_action_code'],
-    'AMOUNT' => str_pad(number_format($amount,2,'',''),9, "0", STR_PAD_LEFT),
+    'AMOUNT' => str_pad(number_format($amount,2,'',''), 9, "0", STR_PAD_LEFT),
     'CURRENCY' => $settings['commerce_xpay_currency'],
     'LANGUAGE' => $settings['commerce_xpay_language'],
     'RESULT_URL' => $settings['return'],
@@ -215,11 +217,11 @@ function commerce_xpay_order_form($form, &$form_state, $order, $settings) {
     'ANNULMENT_URL' => $settings['cancel_return'],
     'VERSION_CODE' => '01.00',
     'EMAIL' => $mail,
-    'DESC_ORDER' => 'Order n. '.$order->order_id." - ".variable_get('site_name', "Site name"),
-    'CO_PLATFORM' => 'L'
+    'DESC_ORDER' => 'Order n. ' . $order->order_id . " - " . variable_get('site_name', "Site name"),
+    'CO_PLATFORM' => 'L',
   );
 
-  // MAC Generation
+  // MAC Generation.
   $mac_string = $data['TERMINAL_ID'];
   $mac_string .= $data['TRANSACTION_ID'];
   $mac_string .= $data['AMOUNT'];
@@ -230,8 +232,7 @@ function commerce_xpay_order_form($form, &$form_state, $order, $settings) {
   $mac_string .= $data['EMAIL'];
   $mac_string .= $settings['commerce_xpay_mac'];
   $data['MAC'] = strtoupper(sha1($mac_string));
-  debug($data);
-  debug($settings['payment_method']);
+
 
   $form['#action'] = commerce_xpay_post_url($settings['commerce_xpay_mode']);
   $form['#method'] = 'post';
@@ -263,8 +264,9 @@ function commerce_xpay_submit_form($payment_method, $pane_values, $checkout_pane
 }
 
 /**
- * Payment method callback: redirect form, a wrapper around the module's general
- *   use function for building a WPS form.
+ * Payment method callback: redirect form, a wrapper around 
+ * the module's general
+ * use function for building a WPS form.
  */
 function commerce_xpay_redirect_form($form, &$form_state, $order, $payment_method) {
   // Return an error if the enabling action's settings haven't been configured.
@@ -273,13 +275,13 @@ function commerce_xpay_redirect_form($form, &$form_state, $order, $payment_metho
     return array();
   }
   $settings = array(
-    // Return to the previous page when payment is canceled
+    // Return to the previous page when payment is canceled.
     'cancel_return' => url('checkout/' . $order->order_id . '/payment/back/' . $order->data['payment_redirect_key'], array('absolute' => TRUE)),
 
-    // Return to the payment redirect page for processing successful payments
+    // Return to the payment redirect page for processing successful payments.
     'return' => url('checkout/' . $order->order_id . '/payment/return/' . $order->data['payment_redirect_key'], array('absolute' => TRUE)),
 
-    // Specify the current payment method instance ID in the notify_url
+    // Specify the current payment method instance ID in the notify_url.
     'payment_method' => $payment_method['instance_id'],
   );
 
@@ -294,10 +296,10 @@ function commerce_xpay_post_url($setting) {
 /**
  * Processes an incoming IPN.
  *
- * @param $payment_method
+ * @param String $payment_method
  *   The payment method instance array that originally made the payment.
  *
- * @return
+ * @return Boolean
  *   TRUE or FALSE indicating whether the IPN was successfully processed or not.
  */
 function commerce_xpay_process_ipn($payment_method = NULL) {
