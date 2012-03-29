@@ -377,7 +377,7 @@ function commerce_xpay_ipn_url($method_id = NULL) {
  * @param String $numeric_code
  *   The numerc code to look up
  */
-function commerce_xpay_get_currency_code_from_value($numeric_code){
+function commerce_xpay_get_currency_code_from_value($numeric_code) {
   $xpay_currencies = array(
     '978' => 'EUR',
   );
