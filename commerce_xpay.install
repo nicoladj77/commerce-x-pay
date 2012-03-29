@@ -1,1 +1,5 @@
-<?php 
+<?php
+/**
+ * @file
+ * There is nothing to install, commerce logs everything we need
+ */

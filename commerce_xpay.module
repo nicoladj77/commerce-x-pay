@@ -10,18 +10,18 @@
 function commerce_xpay_menu() {
   // Define an always accessible path to receive IPNs.
   $items['commerce_xpay/ipn'] = array(
-      'page callback' => 'commerce_xpay_process_ipn',
-      'page arguments' => array(),
-      'access callback' => TRUE,
-      'type' => MENU_CALLBACK,
+    'page callback' => 'commerce_xpay_process_ipn',
+    'page arguments' => array(),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
   );
 
   // Define an additional IPN path that is payment method / instance specific.
   $items['commerce_xpay/ipn/%commerce_payment_method_instance'] = array(
-      'page callback' => 'commerce_xpay_process_ipn',
-      'page arguments' => array(2),
-      'access callback' => TRUE,
-      'type' => MENU_CALLBACK,
+    'page callback' => 'commerce_xpay_process_ipn',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
   );
 
   return $items;
@@ -38,14 +38,14 @@ function commerce_xpay_commerce_payment_method_info() {
   $display_title .= '<br /><img src="'. $path .'/images/xpay_cc.gif" style="position: relative; left: 2.5em;">';
 
   $payment_methods['commerce_xpay'] = array(
-      'method_id' => 'commerce_xpay',
-      'title' => t('X-Pay - Carta Sì'),
-      'short_title' => t('xPAy'),
-      'display_title' => $display_title,
-      'description' => t('Sistema di pagamento standard legato al circuito xPay - Carta sì'),
-      'terminal' => FALSE,
-      'offsite' => TRUE,
-      'offsite_autoredirect' => FALSE,
+    'method_id' => 'commerce_xpay',
+    'title' => t('X-Pay - Carta Sì'),
+    'short_title' => t('xPAy'),
+    'display_title' => $display_title,
+    'description' => t('Sistema di pagamento standard legato al circuito xPay - Carta sì'),
+    'terminal' => FALSE,
+    'offsite' => TRUE,
+    'offsite_autoredirect' => FALSE,
   );
 
   return $payment_methods;
@@ -62,107 +62,106 @@ function commerce_xpay_settings_form($settings = NULL) {
   // Merge default settings into the stored settings array.
   $default_currency = variable_get('commerce_default_currency', 'USD');
   $xpay_languages = array(
-      'ITA' => t('Italian'),
-      'ENG' => t('English'),
-      #'3' => t('Espagnol'),
-      #'4' => t('Francaais'),
-      #'5' => t('Deutsch'),
+    'ITA' => t('Italian'),
+    'ENG' => t('English'),
+    // '3' => t('Espagnol'),
+    // '4' => t('Francaais'),
+    // '5' => t('Deutsch'),
   );
   $xpay_currencies = array(
-      #'1' => 'USD (US Dollar $)',
-      #'2' => 'GBP (Pound Sterling ¬£)',
-      #'71' => 'JPY (Japanese Yen)',
-      #'71' => 'HKD (Hong Kong Dollar)',
-      '978' => 'EUR (Euro ‚€)',
-      # '234' => 'BRL Real',
+    // '1' => 'USD (US Dollar $)',
+    // '2' => 'GBP (Pound Sterling ¬£)',
+    // '71' => 'JPY (Japanese Yen)',
+    // '71' => 'HKD (Hong Kong Dollar)',
+    '978' => 'EUR (Euro ‚€)',
+    //  '234' => 'BRL Real',
   );
 
   //The hardcoded values for commerce_xpay_tid and commerce_xpay_mac are the standard values for the
   //test server, keep them while testing, documentation for x-pay is horrible
   $settings = (array) $settings + array(
-      'commerce_xpay_tid' => 'T04_000000000005',
-      'commerce_xpay_mac' => 'AA88CCEWDKLSDJD3921ZZ',
-      'commerce_xpay_mode' => 'TEST',
-      'commerce_xpay_action_code' => 'VERI',
-      'commerce_xpay_language' => 'ITA',
-      'commerce_xpay_currency' => in_array($default_currency, array_keys($xpay_currencies)) ? $default_currency : '978',
-      'commerce_xpay_method_title' => t('Credit card on a secure server:'),
-      'commerce_xpay_method_title_icons' => TRUE,
-      'commerce_xpay_checkout_button' => t('Submit Order'),
+    'commerce_xpay_tid' => 'T04_000000000005',
+    'commerce_xpay_mac' => 'AA88CCEWDKLSDJD3921ZZ',
+    'commerce_xpay_mode' => 'TEST',
+    'commerce_xpay_action_code' => 'VERI',
+    'commerce_xpay_language' => 'ITA',
+    'commerce_xpay_currency' => in_array($default_currency, array_keys($xpay_currencies)) ? $default_currency : '978',
+    'commerce_xpay_method_title' => t('Credit card on a secure server:'),
+    'commerce_xpay_method_title_icons' => TRUE,
+    'commerce_xpay_checkout_button' => t('Submit Order'),
   );
 
   $form['commerce_xpay_tid'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Terminal ID'),
-      '#description' => t('Your Xpay teminal id.'),
-      '#default_value' => $settings['commerce_xpay_tid'],
-      '#size' => 25,
+    '#type' => 'textfield',
+    '#title' => t('Terminal ID'),
+    '#description' => t('Your Xpay teminal id.'),
+    '#default_value' => $settings['commerce_xpay_tid'],
+    '#size' => 25,
   );
 
   $form['commerce_xpay_mac'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Mac Key'),
-      '#description' => t('Your MAC key'),
-      '#default_value' => $settings['commerce_xpay_mac'],
-      '#size' => 25,
+    '#type' => 'textfield',
+    '#title' => t('Mac Key'),
+    '#description' => t('Your MAC key'),
+    '#default_value' => $settings['commerce_xpay_mac'],
+    '#size' => 25,
   );
 
-  /**/
   $form['commerce_xpay_mode'] = array(
-      '#type' => 'select',
-      '#title' => t('Mode'),
-      '#description' => t('Select NORMAL form normal usage or TEST for testing pourposes'),
-      '#options' => array(
-          'test' => t('TEST'),
-          'normal' => t('NORMAL'),
-      ),
-      '#default_value' => $settings['commerce_xpay_mode'],
+    '#type' => 'select',
+    '#title' => t('Mode'),
+    '#description' => t('Select NORMAL form normal usage or TEST for testing pourposes'),
+    '#options' => array(
+      'test' => t('TEST'),
+      'normal' => t('NORMAL'),
+    ),
+    '#default_value' => $settings['commerce_xpay_mode'],
   );
 
   $form['commerce_xpay_action_code'] = array(
-      '#type' => 'select',
-      '#title' => t('Action Code'),
-      '#description' => t('Select the action code for the authorization request; from 21-02-2011 it has to be "VERI"'),
-      '#options' => array(
-          'VERI' => "VERI",
-          'AUT' => "AUT",
-      ),
-      '#default_value' => $settings['commerce_xpay_action_code'],
+    '#type' => 'select',
+    '#title' => t('Action Code'),
+    '#description' => t('Select the action code for the authorization request; from 21-02-2011 it has to be "VERI"'),
+    '#options' => array(
+      'VERI' => "VERI",
+      'AUT' => "AUT",
+    ),
+    '#default_value' => $settings['commerce_xpay_action_code'],
   );
 
   $form['commerce_xpay_language'] = array(
-      '#type' => 'select',
-      '#title' => t('Language preference'),
-      '#description' => t('Adjust language on XPAY pages.'),
-      '#options' =>$xpay_languages,
-      '#default_value' => $settings['commerce_xpay_language'],
+    '#type' => 'select',
+    '#title' => t('Language preference'),
+    '#description' => t('Adjust language on XPAY pages.'),
+    '#options' =>$xpay_languages,
+    '#default_value' => $settings['commerce_xpay_language'],
   );
 
 
   $form['commerce_xpay_currency'] = array(
-      '#type' => 'select',
-      '#title' => t('Currency preference'),
-      '#description' => t('Adjust currency used with XPAY.'),
-      '#options' => $xpay_currencies,
-      '#default_value' => $settings['commerce_xpay_currency'],
+    '#type' => 'select',
+    '#title' => t('Currency preference'),
+    '#description' => t('Adjust currency used with XPAY.'),
+    '#options' => $xpay_currencies,
+    '#default_value' => $settings['commerce_xpay_currency'],
   );
 
 
   $form['commerce_xpay_method_title'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Payment method title'),
-      '#default_value' => $settings['commerce_xpay_method_title'],
+    '#type' => 'textfield',
+    '#title' => t('Payment method title'),
+    '#default_value' => $settings['commerce_xpay_method_title'],
   );
   $form['commerce_xpay_method_title_icons'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Show credit card icons beside the payment method title.'),
-      '#default_value' => $settings['commerce_xpay_method_title_icons'],
+    '#type' => 'checkbox',
+    '#title' => t('Show credit card icons beside the payment method title.'),
+    '#default_value' => $settings['commerce_xpay_method_title_icons'],
   );
   $form['commerce_xpay_checkout_button'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Order review submit button text'),
-      '#description' => t('Provide XPAY specific text for the submit button on the order review page.'),
-      '#default_value' => $settings['commerce_xpay_checkout_button'],
+    '#type' => 'textfield',
+    '#title' => t('Order review submit button text'),
+    '#description' => t('Provide XPAY specific text for the submit button on the order review page.'),
+    '#default_value' => $settings['commerce_xpay_checkout_button'],
   );
 
   return $form;
@@ -202,20 +201,20 @@ function commerce_xpay_order_form($form, &$form_state, $order, $settings) {
 
 
   $data = array(
-      'TERMINAL_ID' => $settings['commerce_xpay_tid'],
-      'TRANSACTION_ID' => $transaction_id,
-      'ACTION_CODE' => $settings['commerce_xpay_action_code'],
-      'AMOUNT' => str_pad(number_format($amount,2,'',''),9, "0", STR_PAD_LEFT),
-      'CURRENCY' => $settings['commerce_xpay_currency'],
-      'LANGUAGE' => $settings['commerce_xpay_language'],
-      'RESULT_URL' => $settings['return'],
-      'NOTIFICATION_URL' => commerce_xpay_ipn_url($settings['payment_method']),
-      'ERROR_URL' => $settings['cancel_return'],
-      'ANNULMENT_URL' => $settings['cancel_return'],
-      'VERSION_CODE' => '01.00',
-      'EMAIL' => $mail,
-      'DESC_ORDER' => 'Order n. '.$order->order_id." - ".variable_get('site_name', "Site name"),
-      'CO_PLATFORM' => 'L'
+    'TERMINAL_ID' => $settings['commerce_xpay_tid'],
+    'TRANSACTION_ID' => $transaction_id,
+    'ACTION_CODE' => $settings['commerce_xpay_action_code'],
+    'AMOUNT' => str_pad(number_format($amount,2,'',''),9, "0", STR_PAD_LEFT),
+    'CURRENCY' => $settings['commerce_xpay_currency'],
+    'LANGUAGE' => $settings['commerce_xpay_language'],
+    'RESULT_URL' => $settings['return'],
+    'NOTIFICATION_URL' => commerce_xpay_ipn_url($settings['payment_method']),
+    'ERROR_URL' => $settings['cancel_return'],
+    'ANNULMENT_URL' => $settings['cancel_return'],
+    'VERSION_CODE' => '01.00',
+    'EMAIL' => $mail,
+    'DESC_ORDER' => 'Order n. '.$order->order_id." - ".variable_get('site_name', "Site name"),
+    'CO_PLATFORM' => 'L'
   );
 
   // MAC Generation
@@ -238,8 +237,8 @@ function commerce_xpay_order_form($form, &$form_state, $order, $settings) {
     $form[$name] = array('#type' => 'hidden', '#value' => $value);
   }
   $form['submit'] = array(
-      '#type' => 'submit',
-      '#value' => $settings['commerce_xpay_checkout_button']
+    '#type' => 'submit',
+    '#value' => $settings['commerce_xpay_checkout_button']
   );
 
   watchdog('xpay', 'GENERATED PARAMS FOR PAYMENT GATEWAY !data', array('!data' => json_encode($data)),WATCHDOG_NOTICE);
@@ -255,7 +254,7 @@ function commerce_xpay_submit_form($payment_method, $pane_values, $checkout_pane
 
 
   $form['xpay_information'] = array(
-      '#markup' => '<span class="commerce-xpay-info">' . t('(Continue with checkout to complete payment via X-Pay.)') . '</span>',
+    '#markup' => '<span class="commerce-xpay-info">' . t('(Continue with checkout to complete payment via X-Pay.)') . '</span>',
   );
 
   return $form;
@@ -272,14 +271,14 @@ function commerce_xpay_redirect_form($form, &$form_state, $order, $payment_metho
     return array();
   }
   $settings = array(
-      // Return to the previous page when payment is canceled
-      'cancel_return' => url('checkout/' . $order->order_id . '/payment/back/' . $order->data['payment_redirect_key'], array('absolute' => TRUE)),
+    // Return to the previous page when payment is canceled
+    'cancel_return' => url('checkout/' . $order->order_id . '/payment/back/' . $order->data['payment_redirect_key'], array('absolute' => TRUE)),
 
-      // Return to the payment redirect page for processing successful payments
-      'return' => url('checkout/' . $order->order_id . '/payment/return/' . $order->data['payment_redirect_key'], array('absolute' => TRUE)),
+    // Return to the payment redirect page for processing successful payments
+    'return' => url('checkout/' . $order->order_id . '/payment/return/' . $order->data['payment_redirect_key'], array('absolute' => TRUE)),
 
-      // Specify the current payment method instance ID in the notify_url
-      'payment_method' => $payment_method['instance_id'],
+    // Specify the current payment method instance ID in the notify_url
+    'payment_method' => $payment_method['instance_id'],
   );
 
   return commerce_xpay_order_form($form, $form_state, $order, $payment_method['settings'] + $settings);
@@ -309,7 +308,7 @@ function commerce_xpay_process_ipn($payment_method = NULL) {
   $amount = $_POST["AMOUNT"]/100;
   $currency = commerce_xpay_get_currency_code_from_value($_POST['CURRENCY']);
 
-  //load the order from commerce
+  // load the order from commerce
   $order = commerce_order_load($order_id);
 
   // ERROR - ORDER NOT IN CHECKOUT
@@ -353,8 +352,8 @@ function commerce_xpay_process_ipn($payment_method = NULL) {
  */
 function commerce_xpay_ipn_url($method_id = NULL) {
   $parts = array(
-      'commerce_xpay',
-      'ipn',
+    'commerce_xpay',
+    'ipn',
   );
 
   if (!empty($method_id)) {
@@ -371,7 +370,7 @@ function commerce_xpay_ipn_url($method_id = NULL) {
  */
 function commerce_xpay_get_currency_code_from_value($numericCode){
   $xpay_currencies = array(
-      '978' => 'EUR',
+    '978' => 'EUR',
   );
 
   return $xpay_currencies[$numericCode];
