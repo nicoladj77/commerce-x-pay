@@ -169,24 +169,25 @@ function commerce_xpay_settings_form($settings = NULL) {
 
 /**
  * Builds a Website Payments Standard form from an order object.
+ * 
  * @param array $form
- *    - drupal form
+ *   Drupal form
  * @param array $form_state
- *    - drupal form state
- * @param array $order 
+ *   Drupal form state
+ * @param array $order
  *   The fully loaded order being paid for.
  * @param array $settings
  *   An array of settings used to build out the form, including:
  *   - commerce_xpay_mode: which server to use, either test or normal
  *   - commerce_xpay_tid: the Xpay teminal id to use
  *   - commerce_xpay_mac: the MAC that you got from X-Pay after activation
- *   - commerce_xpay_mode: the URL PayPal should send the user to on 
+ *   - commerce_xpay_mode: the URL PayPal should send the user to on
  *       cancellation
  *   - return: the URL X-Pay should send the user to on successful payment
- *   - cancel_return: the URL X-Pay should send the user to after a not 
+ *   - cancel_return: the URL X-Pay should send the user to after a not
  *       successful payment
  *   - commerce_xpay_currency: the X-Pay currency code to use for this payment
- *   - commerce_xpay_language: the X-Pay language code to use on the payment 
+ *   - commerce_xpay_language: the X-Pay language code to use on the payment
  *       form
  *   - commerce_xpay_action_code:  the action code for the authorization request
  *
@@ -208,7 +209,7 @@ function commerce_xpay_order_form($form, &$form_state, $order, $settings) {
     'TERMINAL_ID' => $settings['commerce_xpay_tid'],
     'TRANSACTION_ID' => $transaction_id,
     'ACTION_CODE' => $settings['commerce_xpay_action_code'],
-    'AMOUNT' => str_pad(number_format($amount,2,'',''), 9, "0", STR_PAD_LEFT),
+    'AMOUNT' => str_pad(number_format($amount, 2, '', ''), 9, "0", STR_PAD_LEFT),
     'CURRENCY' => $settings['commerce_xpay_currency'],
     'LANGUAGE' => $settings['commerce_xpay_language'],
     'RESULT_URL' => $settings['return'],
@@ -241,10 +242,10 @@ function commerce_xpay_order_form($form, &$form_state, $order, $settings) {
   }
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => $settings['commerce_xpay_checkout_button']
+    '#value' => $settings['commerce_xpay_checkout_button'],
   );
 
-  watchdog('xpay', 'GENERATED PARAMS FOR PAYMENT GATEWAY !data', array('!data' => json_encode($data)),WATCHDOG_NOTICE);
+  watchdog('xpay', 'GENERATED PARAMS FOR PAYMENT GATEWAY !data', array('!data' => json_encode($data)), WATCHDOG_NOTICE);
 
   return $form;
 
@@ -264,7 +265,7 @@ function commerce_xpay_submit_form($payment_method, $pane_values, $checkout_pane
 }
 
 /**
- * Payment method callback: redirect form, a wrapper around 
+ * Payment method callback: redirect form, a wrapper around
  * the module's general
  * use function for building a WPS form.
  */
@@ -287,7 +288,9 @@ function commerce_xpay_redirect_form($form, &$form_state, $order, $payment_metho
 
   return commerce_xpay_order_form($form, $form_state, $order, $payment_method['settings'] + $settings);
 }
-
+/**
+ * return test or normal url
+ */
 function commerce_xpay_post_url($setting) {
   $post_url = $setting === 'normal' ? 'https://cartasi.x-pay.it/XPayVPOS/XPServlet' : 'https://cartasi-test.x-pay.it/XPayVPOSTEST/XPServlet';
   return $post_url;
@@ -312,13 +315,13 @@ function commerce_xpay_process_ipn($payment_method = NULL) {
   $amount = $_POST["AMOUNT"]/100;
   $currency = commerce_xpay_get_currency_code_from_value($_POST['CURRENCY']);
 
-  // load the order from commerce
+  // Load the order from commerce
   $order = commerce_order_load($order_id);
 
   // ERROR - ORDER NOT IN CHECKOUT
   if ($order === FALSE) {
-    watchdog('xpay', 'RETURN FROM PAYMENT GATEWAY - ORDER NOT IN CHECKOUT STATE OR NOT FOUND, received response !response for payment from gateway but order #!order_id is not in "in_checkout" state', array('!order_id' => $transaction_id,'!response' => $order_id),WATCHDOG_ERROR);
-    drupal_set_message(t('WARNING - ORDER #!order_id NOT FOUND, Please Retry.',array('!order_id'=>$order_id)),'warning');
+    watchdog('xpay', 'RETURN FROM PAYMENT GATEWAY - ORDER NOT IN CHECKOUT STATE OR NOT FOUND, received response !response for payment from gateway but order #!order_id is not in "in_checkout" state', array('!order_id' => $transaction_id,'!response' => $order_id), WATCHDOG_ERROR);
+    drupal_set_message(t('WARNING - ORDER #!order_id NOT FOUND, Please Retry.', array('!order_id'=>$order_id)), 'warning');
     return FALSE;
   }
 
