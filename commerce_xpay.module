@@ -76,8 +76,9 @@ function commerce_xpay_settings_form($settings = NULL) {
   );
 
   $currency = in_array($default_currency, array_keys($xpay_currencies)) ? $default_currency : '978';
-  /* The hardcoded values for commerce_xpay_tid and commerce_xpay_mac are the standard values for the
-   test server, keep them while testing, documentation for x-pay is horrible */ 
+  /* The hardcoded values for commerce_xpay_tid and commerce_xpay_mac are the
+   * standard values for the
+   * test server, keep them while testing, documentation for x-pay is horrible */
   $settings = (array) $settings + array(
     'commerce_xpay_tid' => 'T04_000000000005',
     'commerce_xpay_mac' => 'AA88CCEWDKLSDJD3921ZZ',
@@ -168,8 +169,11 @@ function commerce_xpay_settings_form($settings = NULL) {
 
 /**
  * Builds a Website Payments Standard form from an order object.
+ * @param $form
+ * 
+ * @param $form_state
  *
- * @param $order
+ * @param $settings 
  *   The fully loaded order being paid for.
  * @param $settings
  *   An array of settings used to build out the form, including:
@@ -183,11 +187,10 @@ function commerce_xpay_settings_form($settings = NULL) {
  *   - commerce_xpay_language: the X-Pay language code to use on the payment form
  *   - commerce_xpay_action_code:  the action code for the authorization request
  *
- * @return
+ * @return array
  *   A renderable form array.
  */
 function commerce_xpay_order_form($form, &$form_state, $order, $settings) {
-
 
   $wrapper = entity_metadata_wrapper('commerce_order', $order);
 
