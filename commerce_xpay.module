@@ -5,7 +5,7 @@
  */
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function commerce_xpay_menu() {
   // Define an always accessible path to receive IPNs.
@@ -35,7 +35,7 @@ function commerce_xpay_commerce_payment_method_info() {
 
   $path = base_path() . drupal_get_path('module', 'commerce_xpay');
   $display_title = variable_get('commerce_xpay_method_title', t('Credit card on a secure server:'));
-  $display_title .= '<br /><img src="'. $path .'/images/xpay_cc.gif" style="position: relative; left: 2.5em;">';
+  $display_title .= '<br /><img src="' . $path . '/images/xpay_cc.gif" style="position: relative; left: 2.5em;">';
 
   $payment_methods['commerce_xpay'] = array(
     'method_id' => 'commerce_xpay',
@@ -50,8 +50,6 @@ function commerce_xpay_commerce_payment_method_info() {
 
   return $payment_methods;
 }
-
-
 
 /**
  * Payment method callback: settings form.
@@ -74,18 +72,19 @@ function commerce_xpay_settings_form($settings = NULL) {
     // '71' => 'JPY (Japanese Yen)',
     // '71' => 'HKD (Hong Kong Dollar)',
     '978' => 'EUR (Euro ‚€)',
-    //  '234' => 'BRL Real',
+    // '234' => 'BRL Real',
   );
 
-  //The hardcoded values for commerce_xpay_tid and commerce_xpay_mac are the standard values for the
-  //test server, keep them while testing, documentation for x-pay is horrible
+  $currency = in_array($default_currency, array_keys($xpay_currencies)) ? $default_currency : '978';
+  /* The hardcoded values for commerce_xpay_tid and commerce_xpay_mac are the standard values for the
+   test server, keep them while testing, documentation for x-pay is horrible */ 
   $settings = (array) $settings + array(
     'commerce_xpay_tid' => 'T04_000000000005',
     'commerce_xpay_mac' => 'AA88CCEWDKLSDJD3921ZZ',
     'commerce_xpay_mode' => 'TEST',
     'commerce_xpay_action_code' => 'VERI',
     'commerce_xpay_language' => 'ITA',
-    'commerce_xpay_currency' => in_array($default_currency, array_keys($xpay_currencies)) ? $default_currency : '978',
+    'commerce_xpay_currency' => $currency,
     'commerce_xpay_method_title' => t('Credit card on a secure server:'),
     'commerce_xpay_method_title_icons' => TRUE,
     'commerce_xpay_checkout_button' => t('Submit Order'),
