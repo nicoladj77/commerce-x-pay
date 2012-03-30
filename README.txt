@@ -23,3 +23,33 @@ Commerce: http://drupal.org/project/commerce
   and press edit on "X-Pay - Carta S“" row. Scroll down to "Actions" and
   press "edit"
 
+-- CONFIGURATION OPTIONS --
+
+Terminal ID 
+The terminal id that you  got from Carta Si. 
+Leave the default (T04_000000000005) for testing purpose
+
+Mac Key 
+The Mac Key that you got from Carta Si.
+ Leave the default (AA88CCEWDKLSDJD3921ZZ) for testing purpose
+
+Mode
+Test for testing, normal for a Live site
+
+Action Code 
+You should leave that on VERI (At least the documents say so)
+
+Language preference
+The language used on X_Pay pages
+
+Currency preference
+The currency to use with X-Pay
+
+Payment method title 
+The text that appears in the payment page
+
+Show credit card icons beside the payment method title. 
+Thick the checkbox if you want to see the icons in the payment page
+
+Order review submit button text 
+The text on the submit button
