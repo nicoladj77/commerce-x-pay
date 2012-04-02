@@ -326,7 +326,7 @@ function commerce_xpay_process_ipn($payment_method = NULL) {
   }
 
   // Create a new payment transaction for the order.
-  $transaction = commerce_payment_transaction_new('xpay', $order->order_id);
+  $transaction = commerce_payment_transaction_new('commerce_xpay', $order->order_id);
   $transaction->instance_id = $payment_method['instance_id'];
   $transaction->remote_id = $transaction_id;
   $transaction->amount = commerce_currency_decimal_to_amount($amount, $currency);
