@@ -272,7 +272,7 @@ function commerce_xpay_submit_form($payment_method, $pane_values, $checkout_pane
 function commerce_xpay_redirect_form($form, &$form_state, $order, $payment_method) {
   // Return an error if the enabling action's settings haven't been configured.
   if (empty($payment_method['settings']['commerce_xpay_tid'])) {
-    drupal_set_message(t('PayPal WPS is not configured for use. No PayPal e-mail address has been specified.'), 'error');
+    drupal_set_message(t('X-Pay is not configured for use. No X-Pay tid has been specified.'), 'error');
     return array();
   }
   $settings = array(
