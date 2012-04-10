@@ -1,7 +1,7 @@
 <?php 
 /**
  * @file
- * Implements X-Pay - Carta S“ Website Payments Standard in 
+ * Implements X-Pay - Carta S“ Website Payments Standard in
  * Drupal Commerce checkout.
  */
 
