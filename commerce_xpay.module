@@ -1,7 +1,7 @@
 <?php 
 /**
  * @file
- * Implements PayPal Website Payments Standard in Drupal Commerce checkout.
+ * Implements X-Pay - Carta S� Website Payments Standard in Drupal Commerce checkout.
  */
 
 /**
@@ -35,14 +35,14 @@ function commerce_xpay_commerce_payment_method_info() {
 
   $path = base_path() . drupal_get_path('module', 'commerce_xpay');
   $display_title = variable_get('commerce_xpay_method_title', t('Credit card on a secure server:'));
-  $display_title .= '<br /><img src="' . $path . '/images/xpay_cc.gif" style="position: relative; left: 2.5em;">';
+  $display_title .= '<br /><img src="' . $path . '/images/xpay_cc.gif" alt="Mastercard and Visa" style="position: relative; left: 2.5em;">';
 
   $payment_methods['commerce_xpay'] = array(
     'method_id' => 'commerce_xpay',
     'title' => t('X-Pay - Carta Sì'),
     'short_title' => t('xPAy'),
     'display_title' => $display_title,
-    'description' => t('Sistema di pagamento standard legato al circuito xPay - Carta sì'),
+    'description' => t('Standard POS payment for X-Pay - Carta sì'),
     'terminal' => FALSE,
     'offsite' => TRUE,
     'offsite_autoredirect' => FALSE,
@@ -94,7 +94,7 @@ function commerce_xpay_settings_form($settings = NULL) {
   $form['commerce_xpay_tid'] = array(
     '#type' => 'textfield',
     '#title' => t('Terminal ID'),
-    '#description' => t('Your Xpay teminal id.'),
+    '#description' => t('Your X-Pay teminal id.'),
     '#default_value' => $settings['commerce_xpay_tid'],
     '#size' => 25,
   );
@@ -132,7 +132,7 @@ function commerce_xpay_settings_form($settings = NULL) {
   $form['commerce_xpay_language'] = array(
     '#type' => 'select',
     '#title' => t('Language preference'),
-    '#description' => t('Adjust language on XPAY pages.'),
+    '#description' => t('Adjust language on X-Pay pages.'),
     '#options' =>$xpay_languages,
     '#default_value' => $settings['commerce_xpay_language'],
   );
@@ -181,7 +181,7 @@ function commerce_xpay_settings_form($settings = NULL) {
  *   - commerce_xpay_mode: which server to use, either test or normal
  *   - commerce_xpay_tid: the Xpay teminal id to use
  *   - commerce_xpay_mac: the MAC that you got from X-Pay after activation
- *   - commerce_xpay_mode: the URL PayPal should send the user to on
+ *   - commerce_xpay_mode: the URL X-Pay should send the user to on
  *       cancellation
  *   - return: the URL X-Pay should send the user to on successful payment
  *   - cancel_return: the URL X-Pay should send the user to after a not
@@ -297,7 +297,7 @@ function commerce_xpay_post_url($setting) {
 }
 
 /**
- * Processes an incoming IPN.
+ * Processes an incoming transaction.
  *
  * @param String $payment_method
  *   The payment method instance array that originally made the payment.
@@ -306,7 +306,10 @@ function commerce_xpay_post_url($setting) {
  *   TRUE or FALSE indicating whether the IPN was successfully processed or not.
  */
 function commerce_xpay_process_ipn($payment_method = NULL) {
-
+  //check that the variables are set
+  if(!isset($_POST["RESPONSE"]) || !isset($_POST["TRANSACTION_ID"]) || !isset($_POST["AUTH_CODE"]) || !isset($_POST["AMOUNT"]) || !isset($_POST["CURRENCY"])){
+    return FALSE;
+  }
   $response = $_POST["RESPONSE"];
   $transaction_id = $_POST["TRANSACTION_ID"];
   $transaction_id_array = split('O', $transaction_id);
@@ -335,6 +338,7 @@ function commerce_xpay_process_ipn($payment_method = NULL) {
 
   // Set the transaction's statuses based on the IPN's payment_status.
   $transaction->remote_status = $response;
+  $payed = FALSE;
   // ERROR - PAYMENT NOT OK.
   if ($response !== "TRANSACTION_OK") {
     $transaction->status = COMMERCE_PAYMENT_STATUS_FAILURE;
@@ -344,11 +348,16 @@ function commerce_xpay_process_ipn($payment_method = NULL) {
     // NOTICE - PAYMENT OK.
     $transaction->status = COMMERCE_PAYMENT_STATUS_SUCCESS;
     $transaction->message = t('The payment has completed.');
+    $payed = TRUE;
   }
   // Save the transaction information.
   commerce_payment_transaction_save($transaction);
-
-  commerce_payment_redirect_pane_next_page($order);
+  //if payment was ok, redirect the user to next page, else redirect to previous page
+  if($payed){
+    commerce_payment_redirect_pane_next_page($order);
+  }else{
+    commerce_payment_redirect_pane_previous_page($order);
+  }
   watchdog('commerce_xpay', 'Payment processed for Order @order_number with ID @txn_id.', array('@txn_id' => $transaction_id, '@order_number' => $order->order_number), WATCHDOG_INFO);
 
 }
