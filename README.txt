@@ -27,10 +27,12 @@ Commerce: http://drupal.org/project/commerce
 -- CONFIGURATION OPTIONS --
 
 Terminal ID 
-The terminal id that you  got from Carta S�. Leave the default (T04_000000000005) for testing purpose
+The terminal id that you  got from Carta S�. 
+Leave the default (T04_000000000005) for testing purpose
 
 Mac Key 
-The Mac Key that you got from Carta S�. Leave the default (AA88CCEWDKLSDJD3921ZZ) for testing purpose
+The Mac Key that you got from Carta S�. 
+Leave the default (AA88CCEWDKLSDJD3921ZZ) for testing purpose
 
 Mode
 Test for testing, normal for a Live site
