@@ -306,7 +306,7 @@ function commerce_xpay_post_url($setting) {
  *   TRUE or FALSE indicating whether the IPN was successfully processed or not.
  */
 function commerce_xpay_process_ipn($payment_method = NULL) {
-  //check that the variables are set
+  // Check that the variables are set.
   if(!isset($_POST["RESPONSE"]) || !isset($_POST["TRANSACTION_ID"]) || !isset($_POST["AUTH_CODE"]) || !isset($_POST["AMOUNT"]) || !isset($_POST["CURRENCY"])){
     return FALSE;
   }
@@ -352,10 +352,11 @@ function commerce_xpay_process_ipn($payment_method = NULL) {
   }
   // Save the transaction information.
   commerce_payment_transaction_save($transaction);
-  //if payment was ok, redirect the user to next page, else redirect to previous page
-  if($payed){
+  // If payment was ok, redirect the user to next page, else redirect to previous page.
+  if ($payed) {
     commerce_payment_redirect_pane_next_page($order);
-  }else{
+  }
+  else{
     commerce_payment_redirect_pane_previous_page($order);
   }
   watchdog('commerce_xpay', 'Payment processed for Order @order_number with ID @txn_id.', array('@txn_id' => $transaction_id, '@order_number' => $order->order_number), WATCHDOG_INFO);
