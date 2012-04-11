@@ -257,7 +257,6 @@ function commerce_xpay_order_form($form, &$form_state, $order, $settings) {
  */
 function commerce_xpay_submit_form($payment_method, $pane_values, $checkout_pane, $order) {
 
-
   $form['xpay_information'] = array(
     '#markup' => '<span class="commerce-xpay-info">' . t('(Continue with checkout to complete payment via X-Pay.)') . '</span>',
   );
@@ -311,6 +310,24 @@ function commerce_xpay_process_ipn($payment_method = NULL) {
   if (!isset($_POST["RESPONSE"]) || !isset($_POST["TRANSACTION_ID"]) || !isset($_POST["AUTH_CODE"]) || !isset($_POST["AMOUNT"]) || !isset($_POST["CURRENCY"])) {
     return FALSE;
   }
+  // If no payment method is passed, we can't verify
+  if ($payment_method === null) {
+    return FALSE;
+  }
+
+  // Let's check that the message comes from the bank.
+  $mac_string = $_POST["TERMINAL_ID"];
+  $mac_string .= $_POST["TRANSACTION_ID"];
+  $mac_string .= $_POST["RESPONSE"];
+  $mac_string .= $_POST["AMOUNT"];
+  $mac_string .= $_POST["CURRENCY"];
+  $mac_string .= $payment_method["settings"]["commerce_xpay_mac"];
+  $mac = strtoupper(sha1($mac_string));
+  $mac_check = FALSE;
+  if ($_POST["MAC"] === $mac) {
+    $mac_check = TRUE;
+  }
+  
   $response = $_POST["RESPONSE"];
   $transaction_id = $_POST["TRANSACTION_ID"];
   $transaction_id_array = split('O', $transaction_id);
@@ -324,9 +341,14 @@ function commerce_xpay_process_ipn($payment_method = NULL) {
 
   // ERROR - ORDER NOT IN CHECKOUT.
   if ($order === FALSE) {
-    watchdog('xpay', 'RETURN FROM PAYMENT GATEWAY - ORDER NOT IN CHECKOUT STATE OR NOT FOUND, received response !response for payment from gateway but order #!order_id is not in "in_checkout" state', array('!order_id' => $transaction_id, '!response' => $order_id), WATCHDOG_ERROR);
+    watchdog('commerce_xpay', 'RETURN FROM PAYMENT GATEWAY - ORDER NOT IN CHECKOUT STATE OR NOT FOUND, received response !response for payment from gateway but order #!order_id is not in "in_checkout" state', array('!order_id' => $transaction_id, '!response' => $order_id), WATCHDOG_ERROR);
     drupal_set_message(t('WARNING - ORDER #!order_id NOT FOUND, Please Retry.', array('!order_id' => $order_id)), 'warning');
     return FALSE;
+  }
+  if ($mac_check === FALSE) {
+    watchdog('commerce_xpay', 'RETURN FROM PAYMENT GATEWAY - MAC CHECK NOT PASSED, received response !response for payment. We received mac !received_mac but should have been !calc_mac', array('!received_mac' => $_POST['MAC'], '!response' => $order_id, '!calc_mac' => $mac), WATCHDOG_ERROR);
+    drupal_set_message(t('ERROR - An error occured while processing the transaction, Please Retry or choose another payment method.'), 'error');
+    commerce_payment_redirect_pane_previous_page($order);
   }
 
   // Create a new payment transaction for the order.
