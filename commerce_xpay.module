@@ -346,9 +346,11 @@ function commerce_xpay_process_ipn($payment_method = NULL) {
     return FALSE;
   }
   if ($mac_check === FALSE) {
-    $variables = array('!received_mac' => $_POST['MAC'], 
-                       '!response' => $response, 
-                       '!calc_mac' => $mac);
+    $variables = array(
+      '!received_mac' => $_POST['MAC'], 
+      '!response' => $response, 
+      '!calc_mac' => $mac);
+    
     watchdog('commerce_xpay', 'RETURN FROM PAYMENT GATEWAY - MAC CHECK NOT PASSED, received response !response for payment. We received mac !received_mac but should have been !calc_mac', $variables, WATCHDOG_ERROR);
     drupal_set_message(t('ERROR - An error occured while processing the transaction, Please Retry or choose another payment method.'), 'error');
     commerce_payment_redirect_pane_previous_page($order);
