@@ -1,7 +1,7 @@
 
 -- SUMMARY --
 
-This module allows payments through the X-Pay - Carta S� 
+This module allows payments through the X-Pay - Carta Sì 
 Virtual pos (http://www.cartasi.it/gtwpages/common/index.jsp?id=OiRGdkfJWU)  
 in Drupal Commerce
 http://drupal.org/project/commerce
@@ -18,20 +18,20 @@ Commerce: http://drupal.org/project/commerce
   for further information.
 
 * Go to Store -> Conifgure -> Payment methods and press "enable" on the disabled 
-  "X-Pay - Carta S�" to enable the payment method
+  "X-Pay - Carta Sì" to enable the payment method
 
 * To modify configuration options go to Store -> Conifgure -> Payment methods
-  and press edit on "X-Pay - Carta S�" row. Scroll down to "Actions" and
+  and press edit on "X-Pay - Carta Sì" row. Scroll down to "Actions" and
   press "edit"
 
 -- CONFIGURATION OPTIONS --
 
 Terminal ID 
-The terminal id that you  got from Carta S�. 
+The terminal id that you  got from Carta Sì. 
 Leave the default (T04_000000000005) for testing purpose
 
 Mac Key 
-The Mac Key that you got from Carta S�. 
+The Mac Key that you got from Carta Sì. 
 Leave the default (AA88CCEWDKLSDJD3921ZZ) for testing purpose
 
 Mode
