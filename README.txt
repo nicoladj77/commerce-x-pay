@@ -1,7 +1,7 @@
 
 -- SUMMARY --
 
-This module allows payments through the X-Pay - Carta Sì 
+This module allows payments through the X-Pay - Carta Sì
 Virtual pos (http://www.cartasi.it/gtwpages/common/index.jsp?id=OiRGdkfJWU)  
 in Drupal Commerce
 http://drupal.org/project/commerce
